@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para el amor de mi vida</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+    body {
+        margin: 0;
+        background: #fdfaf6;
+        font-family: 'Dancing Script', 'Brush Script MT', 'Lucida Handwriting', cursive;
+        color: #5a5a5a;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    /* PANTALLA DE INICIO */
+    #pantalla-inicio {
+        position: fixed; 
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: #fdfaf6;
+        z-index: 9999; 
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .corazon-boton {
+        font-size: 70px;
+        color: #d9534f;
+        animation: latir 1.5s infinite;
+        margin-bottom: 20px;
+    }
+
+    @keyframes latir {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.15); }
+        100% { transform: scale(1); }
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    #contenedor-principal {
+        display: none; 
+        justify-content: space-around;
+        align-items: center;
+        width: 100%;
+        max-width: 1200px;
+        position: relative;
+        height: 100vh;
+        box-sizing: border-box;
+    }
+
+    .seccion-texto {
+        width: 45%;
+        padding-left: 50px;
+        z-index: 20; 
+    }
+
+    #texto-poema {
+        font-size: 30px; 
+        line-height: 1.5; 
+        min-height: 220px; 
+        white-space: pre-line; 
+        font-weight: 700;
+    }
+
+    .escribiendo::after {
+        content: '|';
+        color: #d9534f;
+        animation: parpadeoCursor 0.8s infinite;
+        margin-left: 5px;
+    }
+
+    @keyframes parpadeoCursor {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
+
+    #contador-box {
+        margin-top: 30px;
+        font-size: 26px;
+        opacity: 0;
+        transition: opacity 2s ease;
+    }
+
+    #tiempo {
+        font-size: 34px; 
+        color: #d9534f;
+        font-weight: 700; 
+        margin-top: 10px;
+    }
+
+    canvas {
+        display: block;
+        z-index: 5; 
+        max-width: 100%;
+        height: auto;
+    }
+
+    .petalo-caida {
+        position: absolute;
+        width: 16px; 
+        height: 16px;
+        transform: rotate(45deg);
+        animation: caer linear forwards;
+        opacity: 0.9;
+        z-index: 9999; 
+        pointer-events: none; 
+    }
+
+    .petalo-caida::before,
+    .petalo-caida::after {
+        content: "";
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        background: inherit;
+        border-radius: 50%;
+    }
+
+    .petalo-caida::before { top: -8px; left: 0; }
+    .petalo-caida::after { left: -8px; top: 0; }
+
+    @keyframes caer {
+        0% { transform: translate(0, 0) rotate(45deg) scale(0.8); opacity: 0; }
+        10% { opacity: 1; }
+        80% { opacity: 1; }
+        100% { transform: translate(-40px, 800px) rotate(225deg) scale(1.1); opacity: 0; }
+    }
+
+    /* ADAPTACIÓN PARA CELULARES */
+    @media (max-width: 768px) {
+        body {
+            overflow-y: auto; 
+        }
+        #contenedor-principal {
+            flex-direction: column; 
+            justify-content: flex-start;
+            padding-top: 40px;
+            height: auto;
+        }
+        .seccion-texto {
+            width: 90%;
+            padding-left: 0;
+            text-align: center; 
+        }
+        #texto-poema {
+            font-size: 26px;
+            min-height: 180px;
+        }
+        #contador-box {
+            font-size: 22px;
+        }
+        #tiempo {
+            font-size: 28px;
+        }
+        canvas {
+            margin-top: 20px;
+            width: 90%; 
+        }
+    }
+</style>
+</head>
+<body>
+
+<div id="pantalla-inicio" onclick="arrancarMagia()">
+    <div class="corazon-boton">❤️</div>
+    <p style="font-size: 32px; font-weight: 700;">Haz click aquí, mi amor...</p>
+</div>
+
+<div id="contenedor-principal">
+    <div class="seccion-texto">
+        <div id="texto-poema"></div>
+        <div id="contador-box">
+            <div>Mi amor por ti comenzó hace...</div>
+            <div id="tiempo"></div>
+        </div>
+    </div>
+    <canvas id="canvas-arbol" width="600" height="700"></canvas>
+</div>
+
+<script>
+    // --- ESTA ES LA FECHA QUE DA EXACTAMENTE 207 DÍAS, 10 HORAS ---
+    const fechaAniversario = new Date("2025-07-22T08:00:00"); 
+
+    function arrancarMagia() {
+        try {
+            document.getElementById("pantalla-inicio").style.display = "none";
+            document.getElementById("contenedor-principal").style.display = "flex";
+
+            const canvas = document.getElementById('canvas-arbol');
+            const ctx = canvas.getContext('2d');
+
+            // --- LÓGICA DEL CONTADOR ETERNO ---
+            function actualizarContador() {
+                const ahora = new Date();
+                const diferenciaMilisegundos = ahora - fechaAniversario;
+
+                const dias = Math.floor(diferenciaMilisegundos / (1000 * 60 * 60 * 24));
+                const horas = Math.floor((diferenciaMilisegundos % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutos = Math.floor((diferenciaMilisegundos % (1000 * 60 * 60)) / (1000 * 60));
+                const segundos = Math.floor((diferenciaMilisegundos % (1000 * 60)) / 1000);
+                
+                document.getElementById("tiempo").innerHTML = 
+                    dias + " días " + horas + " horas " + minutos + " minutos " + segundos + " segundos";
+            }
+
+            actualizarContador(); 
+            setInterval(actualizarContador, 1000);
+
+            // --- CAMBIA EL NOMBRE AQUÍ ABAJO ---
+            const lineasPoema = [
+                "Para el amor de mi vida:\n\n",
+                "Si pudiera elegir un lugar seguro,\nsería a tu lado.\n\n",
+                "Cuanto más tiempo estoy contigo\nmás te amo.\n\n",
+                "Con todo mi amor,\nEmanuel ♥" // <-- BORRA EMANUEL Y PON EL NUEVO NOMBRE
+            ];
+
+            const elementoTexto = document.getElementById("texto-poema");
+            elementoTexto.classList.add("escribiendo");
+            
+            let lineaActual = 0;
+            let charActual = 0;
+
+            function escribirSiguiente() {
+                if (lineaActual < lineasPoema.length) {
+                    if (charActual < lineasPoema[lineaActual].length) {
+                        elementoTexto.innerHTML += lineasPoema[lineaActual].charAt(charActual);
+                        charActual++;
+                        setTimeout(escribirSiguiente, 40 + Math.random() * 30); 
+                    } else {
+                        lineaActual++;
+                        charActual = 0;
+                        setTimeout(escribirSiguiente, 600); 
+                    }
+                } else {
+                    elementoTexto.classList.remove("escribiendo");
+                    document.getElementById("contador-box").style.opacity = "1";
+                }
+            }
+            setTimeout(escribirSiguiente, 500);
+
+            // Árbol y Pétalos
+            const coloresCorazon = ["#ff4d6d", "#ff758f", "#ff8fa3", "#ffb3c1", "#ff5c8a", "#ea698b", "#d90429"];
+
+            function dibujarCorazon(x, y, size, color) {
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.bezierCurveTo(x, y - size/2, x - size, y - size/2, x - size, y);
+                ctx.bezierCurveTo(x - size, y + size/2, x, y + size*0.8, x, y + size*1.5);
+                ctx.bezierCurveTo(x, y + size*0.8, x + size, y + size/2, x + size, y);
+                ctx.bezierCurveTo(x + size, y - size/2, x, y - size/2, x, y);
+                ctx.fill();
+            }
+
+            function rama(startX, startY, length, angle, branchWidth) {
+                ctx.beginPath();
+                ctx.save();
+                ctx.strokeStyle = "#6b4e3d"; 
+                ctx.fillStyle = "#6b4e3d";
+                ctx.lineWidth = branchWidth;
+                ctx.lineCap = "round";
+                
+                ctx.translate(startX, startY);
+                ctx.rotate(angle * Math.PI / 180);
+                ctx.moveTo(0, 0);
+                ctx.lineTo(0, -length);
+                ctx.stroke();
+                
+                if (length < 15) {
+                    const color = coloresCorazon[Math.floor(Math.random() * coloresCorazon.length)];
+                    dibujarCorazon(0, -length, Math.random() * 7 + 5, color);
+                    ctx.restore();
+                    return;
+                }
+
+                ctx.restore();
+
+                const endX = startX + length * Math.sin(angle * Math.PI / 180);
+                const endY = startY - length * Math.cos(angle * Math.PI / 180);
+
+                setTimeout(() => {
+                    rama(endX, endY, length * 0.75, angle - (Math.random() * 22 + 8), branchWidth * 0.7);
+                    rama(endX, endY, length * 0.75, angle + (Math.random() * 22 + 8), branchWidth * 0.7);
+                }, 50);
+            }
+
+            setTimeout(() => {
+                rama(canvas.width / 2, canvas.height - 40, 130, 0, 14);
+            }, 300);
+
+            function crearPetaloCaida() {
+                const petalo = document.createElement("div");
+                petalo.classList.add("petalo-caida");
+                petalo.style.background = coloresCorazon[Math.floor(Math.random() * coloresCorazon.length)];
+                
+                const canvasRect = canvas.getBoundingClientRect();
+                const origenX = canvasRect.left + (canvasRect.width * 0.2) + Math.random() * (canvasRect.width * 0.6);
+                const origenY = canvasRect.top + 50 + Math.random() * 250;
+                
+                petalo.style.left = origenX + "px";
+                petalo.style.top = origenY + "px";
+                
+                const duracion = 5 + Math.random() * 4; 
+                petalo.style.animationDuration = duracion + "s";
+
+                document.body.appendChild(petalo);
+
+                setTimeout(() => { petalo.remove(); }, duracion * 1000);
+            }
+
+            setTimeout(() => {
+                setInterval(crearPetaloCaida, 400); 
+            }, 2000);
+
+        } catch (error) {
+            alert("Hubo un error en el código: " + error.message);
+        }
+    }
+</script>
+
+</body>
+</html>
